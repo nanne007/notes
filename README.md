@@ -5,4 +5,4 @@
 我会逐渐将本地的一些文档整理完善，归纳到这里；日后的一些学习阅读也将记录在此。
 
 Open Issues 是正在进行或将要进行的阅读，Closed Issues 是已经完成的阅读。
-阅读过程中必定有疏漏和不正确的地方，欢迎大家去 [Issues](https://github.com/windor/reading-notes/issues)评论！
+阅读过程中必定有疏漏和不正确的地方，欢迎大家去 [Issues](https://github.com/windor/reading-notes/issues) 页面进行讨论！
