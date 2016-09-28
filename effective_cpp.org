@@ -1,0 +1,27 @@
+**** 5. Know what functions C++ silently writes and calls
+     - default constructor if no constructor defined by user.
+     - copy constructor if not defined by user.
+     - assignment operator if not defined by user.
+     - destructor if not defined by user.
+
+
+**** 6. Explicitly disallow the use of compiler-generated functions you do not want
+
+**** 7. Declare destructor virtual in polymorphic base classes
+     - polymorphic base class should declare virtual destructors.
+       If a class has any virtual functions, it should have a virtual destructor.
+     - class not designed to be base classes or not designed to be used polymorphically
+       should not declare virtual destructor.
+
+**** 8. Prevent exceptions from leaving destructors
+     - Destructors should never emit exceptions.
+       If functions called in a destructor may throw, the destructor should catch any exceptions,
+     - If class clients need to be able to react to exceptions thrown during an operation,
+       the class should provide a regular function that performs the operation.
+
+**** 9. Never call virtual functions during construction or destruction
+
+
+**** 13. Use objects to manage resources
+**** 18. Make interfaces easy to use correctly and hard to use incorrectly
+
