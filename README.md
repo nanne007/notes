@@ -6,3 +6,5 @@
 
 Open Issues 是正在进行或将要进行的阅读，Closed Issues 是已经完成的阅读。
 阅读过程中必定有疏漏和不正确的地方，欢迎大家去 [Issues](https://github.com/windor/reading-notes/issues) 页面进行讨论！
+
+- [CSBU 读书笔记](./csbu/README.org)
