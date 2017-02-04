@@ -1,0 +1,205 @@
+== Using ROP to do error handling
+
+* 常见的错误处理方法
+* 存在的问题
+* ROP 介绍
+
+''''
+
+=== 常见的错误处理方法
+
+典型应用场景：
+ * 接收一些数据
+ * 在数据上执行一系列数据转换操作。
+
+
+* try-catch
+
+....
+begin
+  ## send post request
+rescue NetworkError => e
+end
+....
+
+* return code
+
+....
+ret = send_post_request()
+if ret.code != 0
+  return error
+else
+  parse(ret.data)
+end
+....
+
+''''
+
+==== 存在的问题
+
+复杂的业务逻辑:
+
+** 验证用户输入
+** 数据库访问
+** 文件访问
+** 网络问题
+** ...
+
+如果在业务逻辑中，使用上述的处理方法，代码很容易变丑，添加各种 if 判断，各种 begin-rescue。
+
+image::imperative-code-return-early.png[retrun early]
+
+''''
+
+=== Enter ROP(Railway Oriented Programming)
+
+image::success-failure.png[success-or-failure]
+
+=>
+
+image::success-failure-railway.png[success-or-failure-railway]
+image::success-failure-railway-1.png[success-or-failure-railway]
+
+如果 Validate 失败，就不执行 UpdateDb 操作，
+如果 UpdateDb 失败，就不执行 SendEmail 操作。
+
+image::pipe-chain.png[pipe chain]
+
+实现：
+
+....
+Try = Struct.new(:ok, data_or_exception)
+
+class Try
+  def pipe(&block)
+    if !@ok
+      return self
+    end
+    block.call(@data_or_exception)
+  end
+end
+
+def validate(req)
+  # do your validation
+  Try.new(ok, validated_req)
+rescue ValidateFailed => e
+  Try.new(false, e)
+end
+
+request = FakeRequest.new()
+r = Try.new(true, request)
+r.pipe { |req| validate(req) }
+ .pipe { |req| update_db(req) }
+ .pipe { |db_result| send_email(db_result) }
+....
+
+
+
+
+==== 不会出错的操作
+
+example.
+
+....
+class Try
+  def map(&block)
+    if !@ok
+      return self
+    end
+    result = block.call(@data_or_exception)
+    Try.new(true, result)
+  end
+end
+
+def trim_name(str)
+  str.strip
+end
+
+
+request = FakeRequest.new()
+r = Try.new(true, request)
+r.map { |req| trim_name(req.name) }
+....
+
+
+
+image::two-track.png[two-track]
+
+
+=== 会抛异常的操作
+
+....
+class Try
+  def map(&block)
+    if !@ok
+      return self
+    end
+    begin
+      result = block.call(@data_or_exception)
+      Try.new(true, result)
+    rescue => e
+      Try.new(false, e)
+    end
+  end
+end
+
+
+
+request = FakeRequest.new()
+r = Try.new(true, request)
+r.map { |req| function_may_raise_error(req) }
+....
+
+
+image::function_may_raise_error.png[raise error function]
+
+==== 副作用
+
+do something meaningful but the return value is not needed.
+
+
+....
+class Try
+  def on_success(&block)
+    if !@ok
+      return self
+    end
+    block.call(@data_or_exception)
+    return self
+  end
+end
+
+def update_db(req)
+  # User.save(req)
+end
+
+
+request = FakeRequest.new()
+r = Try.new(true, request)
+r.on_success { |req| update_db(req) }
+....
+
+image::one-track-input-output.png[dead end railway]
+
+
+
+=== 串联起来
+
+将以上操作串联起来：
+
+....
+request = FakeRequest.new()
+r = Try.new(true, request)
+response = r.pipe { |req| validate(req) }
+ .map { |req| get_user(req.name) }
+ .on_success { |req| update_db(req) }
+ .pipe { |req| send_email(req) }
+....
+
+image::chain-validate-update_db_send_email.png[chain all]
+
+=== 其他
+
+- Try
+- Maybe
+- Monad
