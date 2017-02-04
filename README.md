@@ -9,3 +9,5 @@ Open Issues 是正在进行或将要进行的阅读，Closed Issues 是已经完
 
 - [CSBU 读书笔记](./csbu/README.org)
 - [关于 CPS](./about-cps/README.md)
+- [Elixir 笔记](./about-elixir/README.md)
+
