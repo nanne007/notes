@@ -141,6 +141,93 @@ if there is a chance that more than one such object will be needed.
 
 why ctor isn't declared explicit.
 
+**** 33. Avoid hiding inherited names
+
+- Names in derived classes hide names in base classes.
+  Under public inheritance, this is never desirable.
+- To make hidden name visible again, employ using declarations or
+  forwarding functions.
+**** 34. Differentiate between inheritance of interface and inheritance of implementation.
+
+
+- pure virtual functions must be redeclared by any concrete class that inherits them.
+  and typically have no definition in abstract classes.
+  The purpose of this is to have derived classes inherit a *function interface* only.
+
+- simple virtual functions
+  provide an implementation that derived classes may override.
+  The purpose of declaring a simple virtual function is
+  to have derived classes inherit a function interface as well as a default implementation.
+  A better way is using pure virtual functions with a protected default implementation.
+
+- non-virtual functions
+  The purpose of declaring a non-virtual function is
+  to have derived classes inherit a function interface as well as a mandatory implementation.
+
+
+Two common mistakes:
+- to declare all functions non-virtual.
+  non-virtual destructors are problematic(Item 7).
+- to declare all member functions virtual.
+
+
+***** TtR
+- Inheritance of interface is different from inheritance of implementation.
+  Under public inheritance, derived classes always inherit base class interfaces.
+- Pure virtual functions specify inheritance of interface only.
+- Simple (impure) virtual functions specify inheritance of interface plus inheritance of a default implementation.
+- Non-virtual functions specify inheritance of interface plus inheritance of a mandatory implementation.
+
+
+**** 35. Consider alternatives to virtual functions.
+
+- The Template Method Pattern via the Non-Virtual Interface Idiom
+- The Strategy Pattern via Function Pointers
+- The Classic Strategy Pattern
+
+- Use the non-virtual interface idiom (NVI idiom), a form of the Template Method design pattern that wraps public non-virtual member functions around less accessible virtual functions.
+- Replace virtual functions with function pointer data members, a stripped-down manifestation of the Strategy design pattern.
+- Replace virtual functions with tr1::function data members, thus allowing use of any callable entity with a signature compatible with what you need. This, too, is a form of the Strategy design pattern.
+- Replace virtual functions in one hierarchy with virtual functions in another hierarchy. This is the conventional implementation of the Strategy design pattern.
+
+
+- Alternatives to virtual functions include the NVI idiom and various forms of the Strategy design pattern. The NVI idiom is itself an example of the Template Method design pattern.
+- A disadvantage of moving functionality from a member function to a function outside the class is that the non-member function lacks access to the class’s non-public members.
+- tr1::function objects act like generalized function pointers. Such objects support all callable entities compatible with a given target signature.
+
+**** 36. Never redefine an inherited non-virtual function
+
+Non-virtual functions are statically bound(Item 37),
+while virtual functions are dynamically bound.
+
+See also Item 7.
+
+**** 37. Never redefine a function's inherited default parameter value.
+
+Never redefine an inherited default parameter value,
+because default parameter values are statically bound, while virtual functions —
+the only functions you should be redefining — are dynamically bound.
+
+And use non-virtual interface idiom(Item 35) to do DRY.
+
+
+**** 38. Model "has-a" or "is-implemented-in-terms-of" through composition.
+
+- Composition has meanings completely different from that of public inheritance.
+- In the application domain, composition means has-a. In the implementation domain, it means is-implemented-in-terms-of.
+
+**** 39. Use private inheritance judiciously
+
+- Private inheritance means is-implemented-in-terms of.
+  It’s usually inferior to composition,
+  but it makes sense when a derived class needs access to protected base class members
+  or needs to redefine inherited virtual functions.
+- Unlike composition, private inheritance can enable the empty base optimization.
+  This can be important for library developers who strive to minimize object sizes.
+
+
+**** 40. Use multiple inheritance judiciously
+
 **** 45. generalized version of copy functions
 
 **** 49 & 51 operator new and delete
