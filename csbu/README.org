@@ -199,7 +199,7 @@ Raise Privileges
 
 *** 内存布局
 
-[[file:memory-layout.png][memory layout]]
+[[./memory-layout.png][memory layout]]
 
 *** 文件描述符
 
