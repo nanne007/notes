@@ -1,0 +1,552 @@
+* Ruby Ecosystem - What every ruby newbies should know about?
+
+** Ruby Basics
+
+- Created by *Matz* in 1995.
+- For productivity and fun.
+
+*** The basic elements that other languages also have.
+
+    Interactive Ruby Shell (irb):
+    #+BEGIN_SRC ruby
+      ### Data Types
+
+      1_000_000                       # Integer
+      "Hello, #{`whoami`}"            # String
+      :SenseTime                      # Symbol
+      [1, 2, 3]                       # Array
+      %w(one two three)               # Also array
+      {'one' => 1, 'two' => 2}        # Hash
+      {1 => 'one', 2 => 'two'}        # Hash
+      {one: 1, two: 2}                # Hash with Symbol keys
+      /\d{1,3}\w*/                    # Regexp
+      # Also Set in Standard Library
+
+      ### Control Flows
+
+      # if, unless
+      if your_age < 18
+        'do whatever you want'
+      end
+
+      unless he_is_a_programmer
+        ''
+      end
+
+      # case/when
+
+      case resp_code
+      when 1000, 2000
+        # the case
+      when 3000
+        # other case
+      else
+        # the left case
+      end
+
+      # loop, while, until, break, retry, next
+
+      loop do
+        if some_condition
+          break
+        end
+      end
+
+      ### Exception handling, begin/rescue/ensure
+
+      begin
+        raise 'Oops'
+      rescue StandardError => e
+        logger.error(e)
+      ensure
+        # any resource got gc-ed.
+      end
+
+      ### Built-in support for
+      # 1. rational numbers
+      # 2. complex numbers
+      # 3. arbitrary-precision arithmetic
+      2/3r                 # => (2/3)
+      Rational(2, 3)       # => (2/3)
+      2+3i                 # => (2+3i)
+      Complex(2, 3)        # => (2+3i)
+      2 ** 100             # => 1267650600228229401496703205376
+
+      ### Strict boolean coercion rules (everything is true except false and nil)
+      !!nil    # => false
+      !!false  # => false
+      !![]     # => true
+    #+END_SRC
+
+
+*** Thoroughly object-oriented with inheritance, mixin and metaclass.
+
+- variable scope (global, class, instance, and local)
+
+  #+BEGIN_SRC ruby
+    # global
+    $this_is_a_global_variable = "Please do not change me, as I am fragile."
+
+    # class variable
+
+    class Person
+      @@this_is_a_class_variable = "SenseTime"
+      def initialize(name = "unknown")
+        @name = name # instance variable
+      end
+
+      def name
+        @name
+      end
+
+      def age
+        always_18 = 18 # local variable
+        always_18
+      end
+    end
+
+  #+END_SRC
+
+- Inheritance
+
+  #+BEGIN_SRC ruby
+    class A
+      def a
+        'A'
+      end
+    end
+
+    class B < A
+      def b
+        'B'
+      end
+    end
+
+    B.new.a # => 'A'
+  #+END_SRC
+
+- Mixin, aka composition
+
+  #+BEGIN_SRC ruby
+    module RubySkill
+      def metaprogramming
+        'Meta Programming'
+      end
+
+      def rack
+        'Rack'
+      end
+
+      def ruby_on_rails
+        'Ruby on Rails'
+      end
+
+      # any other skills
+    end
+
+    class RubyMaster
+      include RubySkill
+    end
+
+    everybody = RubyMaster.new
+    everybody.metaprogramming # 'Meta Programming'
+    everybody.rack # 'Rack'
+
+
+    module TestingSkill
+      def unit
+        'Unit Test'
+      end
+
+      def spec
+        'Spec Test'
+      end
+    end
+
+    class RubyMaster
+      include TestingSkill
+    end
+
+
+    everybody.unit # => "Unit Test"
+  #+END_SRC
+
+
+- Class is the first-class object.
+
+
+
+  #+BEGIN_SRC ruby
+    # *call methods on class*
+    class A
+    end
+
+    def A.i_can_do_this
+      'write Ruby'
+    end
+
+    A.i_can_do_this
+  #+END_SRC
+
+
+
+
+  #+BEGIN_SRC ruby
+    # *Every object has a singleton_class.*
+
+    a = A.new
+
+    def a.i_can_do_this
+      'write Ruby'
+    end
+
+    a.i_can_do_this #=> 'write Ruby'
+
+    b = A.new
+
+    b.i_can_do_this #=> NoMethodError!
+  #+END_SRC
+
+
+  #+BEGIN_SRC ruby
+    a.class           # => A
+    a.singleton_class #=> #<Class:#<A:0x00000002ab81f8>>
+
+    A.class           #=> Class
+    A.singleton_class #=> #<Class:A>
+
+  #+END_SRC
+
+- The Truth: [[http://debbbbie.com/img/metaprogramming_ruby/eigenclass.png][ruby method lookup]]
+
+
+
+*** Dynamic reflection and alteration of objects.
+
+#+BEGIN_SRC ruby
+  # duck typing
+  def bar(a)
+    if a.respond_to?(:baz)
+      a.baz
+    end
+  end
+#+END_SRC
+
+
+#+BEGIN_SRC ruby
+  # all methods that you can call.
+  [Integer, String, Regexp, Array, Hash, Enumerable].map do |clazz|
+    clazz.instance_methods(false).sort
+  end.each(&:inspect)
+#+END_SRC
+
+
+#+BEGIN_SRC ruby
+  class Foo
+    def bar
+      @baz = 'baz'
+    end
+  end
+
+  foo = Foo.new
+  foo.instance_variabe_get :@baz # => nil
+
+  foo.bar
+  foo.instance_variabe_get :@baz # => 'baz'
+
+  foo.instance_variabe_set :@baz, 'bar'
+  foo.bar                        # => 'bar'
+#+END_SRC
+
+
+*** Lexical closures, uniq block syntax.
+
+#+BEGIN_SRC ruby
+  [1, 2, 3].each do |x|
+    puts x ** 3
+  end # block
+
+  cube = ->(x) { x ** 3 } # lambda
+  cube[3]
+  cube.call(3)
+
+  gen = ->(times) {
+    ->(e) {
+      e ** times
+    }
+  }
+
+  square = Proc.new { |x| x * x } # proc
+  square[3]
+  cube.call(3)
+#+END_SRC
+
+
+*** Centralized package management through RubyGems
+
+- just ~gem install any_gem_you_want_to_install~
+
+- and also easy-to-use and powerful extensibility.
+
+  #+BEGIN_SRC ruby
+  class Range
+    def overlaps?(other)
+      cover?(other.first) || other.cover?(first)
+    end
+  end
+  #+END_SRC
+
+- *active support*!
+
+
+*** Lispy and functional part
+
+- Ruby is eval.
+
+  #+BEGIN_SRC ruby
+    defs = <<EOS
+    class A
+      def putsputs(*args)
+        puts *args
+      end
+    end
+    EOS
+
+    eval(defs)
+
+    out = A.new
+    out.putsputs "Hello World!"
+  #+END_SRC
+
+- Immutable and ~flat_map(aka bind)~, ~map~, ~select/filter~, ~reduce/fold~ ...
+
+
+  #+BEGIN_SRC ruby
+    ### immutable
+    titles = ['Programming Ruby', 'Ruby Metaprogramming', 'Scala Quick Guide', 'Rust Tutorial']
+    titles.select { |t| t =~ /[Rr]uby/ }
+    titles #=> ['Programming Ruby', 'Ruby Metaprogramming', 'Scala Quick Guide', 'Rust Tutorial']
+    titles.select! { |t| t =~ /[Rr]uby/ }
+    titles #=> ['Programming Ruby', 'Ruby Metaprogramming']
+
+    ### flat_map
+    class User
+      attr_accessor :books
+      attr_accessor :company
+    end
+
+    User.find_by(company: 'SenseTime').flat_map do |user|
+      user.books
+    end.select do |book|
+      book.title =~ /[rR]uby/
+    end.uniq
+  #+END_SRC
+
+
+
+** Ruby on Web
+
+*** Rack
+
+Minimal interface between webservers that support Ruby and Ruby
+frameworks.
+
+#+BEGIN_SRC ruby
+  require 'rack'
+
+  app = Proc.new do |env|
+    ['200', {'Content-Type' => 'text/html'}, ['A barebones rack app.']]
+  end
+
+  Rack::Handler::WEBrick.run app
+#+END_SRC
+
+*** HTTP Servers
+
+- Thin
+- Unicorn
+- Puma
+- Passenger 5(aka Raptor)
+- ...
+
+evented? multi-process? multi-thread?
+
+
+
+*** Frameworks
+
+**** Rails
+
+  - MVC
+  - ORM
+  - Avtive Series.
+  - Many-and-Many rails gems.(Google 'awesome rails')
+
+**** Sinatra, Padrino
+
+#+BEGIN_SRC ruby
+  require 'sinatra'
+  use Rack::CommonLogger
+
+  get '/frank-says' do
+    'Put this in your pipe & smoke it!'
+  end
+#+END_SRC
+
+**** Hanami
+
+  - fullstack
+  - service-oriented, modular.
+  - pure ruby object, less black magic.
+
+
+**** Volt(rich web applications, write ruby and run it in broswer)
+
+under the hook: compile ruby to javascript use Opal engine!
+
+#+BEGIN_SRC ruby
+class User
+  attr_accessor :name
+
+  def initialize(name)
+    @name = name
+  end
+
+  def admin?
+    @name == 'Admin'
+  end
+end
+
+user = User.new('Bob')
+puts user.name
+puts user.admin?
+#+END_SRC
+
+---------------------------------------->>
+
+#+BEGIN_SRC javascript
+  (function(Opal) {
+    var self = Opal.top, $scope = Opal, nil = Opal.nil, $breaker = Opal.breaker, $slice = Opal.slice, $klass = Opal.klass, user = nil;
+
+    Opal.add_stubs(['$attr_accessor', '$==', '$new', '$puts', '$name', '$admin?']);
+    (function($base, $super) {
+      function $User(){};
+      var self = $User = $klass($base, $super, 'User', $User);
+
+      var def = self.$$proto, $scope = self.$$scope, TMP_1, TMP_2;
+
+      def.name = nil;
+      self.$attr_accessor("name");
+
+      Opal.defn(self, '$initialize', TMP_1 = function ːinitialize(name) {
+        var self = this;
+
+        return self.name = name;
+      }, TMP_1.$$arity = 1);
+
+      return (Opal.defn(self, '$admin?', TMP_2 = function() {
+        var self = this;
+
+        return self.name['$==']("Admin");
+      }, TMP_2.$$arity = 0), nil) && 'admin?';
+    })($scope.base, null);
+    user = $scope.get('User').$new("Bob");
+    self.$puts(user.$name());
+    return self.$puts(user['$admin?']());
+  })(Opal);
+
+#+END_SRC
+
+
+*** Tools
+
+- Test
+  - Minitest
+  - RSpec
+- Code Quality
+  - RuboCop
+- DB Adapter
+  - ActiveRecord
+  - Ruby Object Mapper, pure ruby object.
+
+- Background Jobs
+  - Sidekiq. (require redis, ruby)
+  - SuckerPunch. (in memory, ruby)
+  - Beanstalkd. (in memory, c)
+
+  Q: Job Queue or Message Queue?
+
+    - RabbitMQ
+    - Kafka
+
+    (exactly once, at most once, at least once)
+
+- Concurrency - a mistery in Ruby ecosystem.
+
+  - GIL
+  #+BEGIN_SRC ruby
+    array = []
+
+    5.times.map do
+      Thread.new do
+        1000.times do
+          array << nil
+        end
+      end
+    end.each(&:join)
+
+    puts array.size
+  #+END_SRC
+  - future, promise
+    - concurrent-ruby
+      #+BEGIN_SRC ruby
+        require 'concurrent'
+
+        p = Concurrent::Promise.new do
+          # do your heavy work
+          sleep(3)
+          42
+        end.then do |x|
+          # another heavy work
+          sleep(1)
+          x * 2
+        end.then do |result|
+          result - 10
+        end.execute
+
+        # do heavy work in the current thread, like
+        sleep(5)
+
+        p.value # => block until the value is available: rejected or satisfied.
+      #+END_SRC
+
+  - actor model. Let it Crash!
+    - celluloid
+
+
+
+** Ruby on Others
+
+*** IoT
+
+- artoo
+
+#+BEGIN_SRC ruby
+  connection :arduino, :adaptor => :firmata, :port => '/dev/ttyACM0'
+  device :led, :driver => :led, :pin => 13
+  device :button, :driver => :button, :pin => 2
+
+  work do
+    on button, :push => proc {led.toggle}
+  end
+#+END_SRC
+
+*** DevOps
+
+- Puppet
+- Chef
+- Vagrant
+
+** Want More?
+
+Google 'Awesome Ruby'!

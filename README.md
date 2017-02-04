@@ -7,7 +7,7 @@
 Open Issues 是正在进行或将要进行的阅读，Closed Issues 是已经完成的阅读。
 阅读过程中必定有疏漏和不正确的地方，欢迎大家去 [Issues](https://github.com/windor/reading-notes/issues) 页面进行讨论！
 
-- [CSBU 读书笔记](./csbu/README.org)
-- [关于 CPS](./about-cps/README.md)
-- [Elixir 笔记](./about-elixir/README.md)
-
+- [CSBU 读书笔记](./csbu): [Computer Science from the Bottom Up](http://www.bottomupcs.com) 的笔记，入门级，但受益颇多。
+- [关于 CPS](./about-cps): 学习 Scala 时，针对 Continuation 做的一个笔记。
+- [Elixir 笔记](./about-elixir):  Elixir 相关的笔记。
+- [Ruby 生态](./ruby-ecosystem): 在 SenseTime 做的第一个关于 Ruby 的小分享，主要介绍了入门 Ruby 需要了解什么。
