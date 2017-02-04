@@ -1,12 +1,3 @@
----
-layout: post
-title: Continuation
-tags: [cps continuation]
----
-
-去年接触到 continuation 这个概念，前前后后也看了一些文章，但总是不得要领，最近又重新整理了思路，记录在这里。
-
-
 ### CPS
 
 在利用 continuation 编程之前，需要认识一种编程风格：Continuation Passing Style(CPS)。
