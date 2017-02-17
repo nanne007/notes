@@ -3,7 +3,7 @@
 这里保存着我个人一些不成文的笔记，以及各种杂乱无章的记录。
 
 ### 个人笔记
-
+- [Dataflow Model](https://paper.dropbox.com/doc/Dataflow-Model-6GCcfZriy8zi8v3MPZghi): 有关 Google Dataflow Model 的笔记。
 - [Kafka Benchmark](https://github.com/lerencao/kafka-benchmark-runner): 针对 Kafka 做的一个性能测试。
 - [Railway Oriented Programming](./railway-oriented-programming): 关于用 ROP 做错误处理的小分享，实现了 Scala 中 Try 的基本操作。
 - [Ruby 生态](./ruby-ecosystem): 在 SenseTime 做的第一个关于 Ruby 的小分享，主要介绍了入门 Ruby 需要了解什么。
