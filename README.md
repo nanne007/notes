@@ -10,7 +10,7 @@
 - [Elixir 笔记](./about-elixir):  Elixir 相关的笔记。
 - [Computer Science from the Bottom Up 读书笔记](./csbu): [CSBU](http://www.bottomupcs.com) ，入门级，但受益颇多。
 - [关于 CPS](./about-cps): 学习 Scala 时，针对 Continuation 做的一个笔记。
-
+- [ES6 新功能](https://github.com/lerencao/notes/issues/46): 火狐出的几篇有关 ES6 的文章（新特性其实其他语言都已经实现个遍了...）
 
 ### 个人项目
 
