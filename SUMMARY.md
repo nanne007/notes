@@ -1,6 +1,5 @@
 # Summary
 
-* [介绍](README.md)
 * [blockchain](./blockchain.md)
 * [about ceph](./about-ceph/README.md)
 * [Ruby is Dying](PL/about-ruby/README.md)
@@ -16,4 +15,5 @@
 * [effective cpp](effective_cpp/README.md)
 * [个人项目](projects/README.md)
 * [其他](miscellaneous.md)
+
 
