@@ -1,19 +1,19 @@
+<!-- toc -->
+
 # TiKV - HBase done right
 
 ![TiDB Family](https://pingcap.com/images/blog/sparkontikv.png)
 
 
 
-
-----------
-[x] 概览
-[x] Storage - RocksDB
-[ ] Replication - Raft protocol
-[ ] Transaction - 2PC/MVCC
-[ ] Schedule - PD
-[ ] Monitoring - Prometheus && Grafana
-[ ] Testing
-[ ] SQL Layer
+- [x] 概览
+- [x] Storage - RocksDB
+- [ ] Replication - Raft protocol
+- [ ] Transaction - 2PC/MVCC
+- [ ] Schedule - PD
+- [ ] Monitoring - Prometheus && Grafana
+- [ ] Testing
+- [ ] SQL Layer
 
 
 
@@ -110,9 +110,11 @@ DB
 
 ``` json
     {
-     "id":130,
-     "db_name":{"O":"global_temp","L":"global_temp"},
-     "charset":"utf8","collate":"utf8_bin","state":5
+        "id":130,
+        "db_name":{"O":"global_temp","L":"global_temp"},
+        "charset":"utf8",
+        "collate":"utf8_bin",
+        "state":5
     }
 ```
 
@@ -165,4 +167,38 @@ Table Scan/Index Scan => Selection/TopN/Aggr/Limit
 
 http://andremouche.github.io/tidb/coprocessor_in_tikv.html
 
+
+### 代码目录说明 ###
+
+#### structure ####
+
+TxStructure 包装 `kv.Retriever` 和 `kv.RetrieverMutator` 来操作 `string`, `list`, `hash` 类型。
+
+#### meta ####
+
+Meta: 封装 `TxStructure` 来操作 meta 相关的信息。
+Id Allocator: id genertor 封装。
+
+#### model ####
+
+schema, table, index 等数据结构 存入底层 kv 时的 json 格式。
+
+#### table ####
+
+table，index， column 相关的抽象，用来操作数据。
+
+#### tablecodec ####
+
+数据编码。
+
+#### terror ####
+
+错误码。
+
+#### types ####
+
+mysql 类型封装。
+
+
+####  ####
 
