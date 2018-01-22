@@ -28,6 +28,3 @@
 - [Emacs 配置](https://github.com/lerencao/emacs.d): 用 `use-package` 管理的各种 emacs 插件配置。
 - [webpack-react-starter](https://github.com/lerencao/webpack-react-starter): 非常简单的 webpack starter，自带 React HMR。
 
-
-
-
