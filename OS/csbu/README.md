@@ -1,4 +1,4 @@
-* 外设和总线
+# 外设和总线
 
 - 外设通过总线和处理器相连。
 - 设备通过发送中断信号来告知处理器某些信息的发生。
@@ -10,7 +10,7 @@
   和要跳转到的代码地址（中断处理代码）。
 - 中断处理代码的编写是外设驱动和操作系统的职责。
 
-** 中断处理
+## 中断处理
 
 外设发起中断信号给中断控制器，中断控制器将信息传递给处理器。
 处理器查看中断信号描述表（由操作系统填充）寻找相应的代码去处理此次中断。
@@ -20,7 +20,7 @@
 上层在CPU空闲时再运行。
 这样防止中断占用CPU。
 
-** 状态保存
+## 状态保存
 
 在进入中断处理代码之前，处理器需要保存当前状态，保证在中断处理结束后，
 还能恢复原样。
@@ -28,7 +28,7 @@
 这个一般是操作系统的责任。除了损失点时间，中断对于正在运行的程序完全透
 明。
 
-** interrupt, trap 和 exception
+## interrupt, trap 和 exception
 
 处理器自身也可以利用中断机制来处理内部系统信息。比如，访问非法内存，试
 图除0或者其他非法指令。处理器可以抛出异常让操作系统处理。
@@ -38,39 +38,37 @@ discussed in the section called “System Calls” and to implement
 virtual memory, as discussed in Chapter 6, Virtual Memory.
 
 
-#+CAPTION: This is the caption for the next figure link (or table)
-#+NAME:   fig:SED-HR4049
-[[./interrupt.png]]
+![](./interrupt.png)
 
-** 中断的类型
+## 中断的类型
 
-水平触发
-边沿触发
+- 水平触发
+- 边沿触发
 
-** non-maskable interrupts (NMI)
+## non-maskable interrupts (NMI)
 
-   #+BEGIN_QUOTE
-   NMIs can be useful for implementing things such as
-   A system watchdog:
-   where a NMI is raised periodically and sets some flag that must be
-   acknowledged by the operating system. If the acknowledgement is not
-   seen before the next periodic NMI, then system can be considered to be
-   not making forward progress.
-   Another common usage is for profiling a system.
-   A periodic NMI can be raised and used to evaluate what code
-   the processor is currently running; over time this builds a profile of
-   what code is being run and create a very useful insight into system
-   performance.
-   #+END_QUOTE
 
-** IO 空间
+>   NMIs can be useful for implementing things such as
+>   A system watchdog:
+>   where a NMI is raised periodically and sets some flag that must be
+>   acknowledged by the operating system. If the acknowledgement is not
+>   seen before the next periodic NMI, then system can be considered to be
+>   not making forward progress.
+>   Another common usage is for profiling a system.
+>   A periodic NMI can be raised and used to evaluate what code
+>   the processor is currently running; over time this builds a profile of
+>   what code is being run and create a very useful insight into system
+>   performance.
+
+
+## IO 空间
 
 memory mapped IO, where registers on the device are mapped into
 memory.
 to communicate with the device, you need simply read or write to a
 specific address in memory.
 
-** DMA(Direct Memory Access)
+## DMA(Direct Memory Access)
 
 DMA：在外设和内存之间直接传输数据。
 
@@ -78,46 +76,46 @@ DMA：在外设和内存之间直接传输数据。
 一旦完成传输，设备就会发送中断信号，提示设备驱动传输完成。
 
 
-** USB
+## USB
 
 TODO
 
 
-* 计算机结构
+# 计算机结构
 
-** SMP
+## SMP
 
 对称多处理。
 CPU一样。共享其他系统资源，比如，内存，磁盘。
 
-*** Cache Coherency
+### Cache Coherency
 
 缓存一致性
 
-CPUs use ~snooping~
+CPUs use **snooping**
 
 处理器监听一个(其他处理器都连接的)总线上的 cache events，然后更新自己的对应的 cache。
 
-~MOESI~
+**MOESI**
 
 Modified, Owner, Exclusive, Shared, Invalid.
 
 
-*** Hyper-threading
+### Hyper-threading
 
-*** Multi Core
+### Multi Core
 
 - have their own L1 cache.
 - share bus to memory and other devices.
 
 
-** Cluster
+## Cluster
 
-** Non-Uniform Memory Access
+## Non-Uniform Memory Access
 
 TODO
 
-** Memory ordering, locking, and atomic operations
+## Memory ordering, locking, and atomic operations
 
 内存的一片区域，一个处理器写，另一个处理器读，
 什么时候处理器读的是写过后的值呢？
@@ -131,10 +129,10 @@ TODO
 
 TODO:
 
-http://dreamrunner.org/blog/2014/06/28/qian-tan-memory-reordering/
-https://en.wikipedia.org/wiki/Memory_ordering
-https://en.wikipedia.org/wiki/Memory_barrier
-https://en.wikipedia.org/wiki/Non-blocking_algorithm
+- http://dreamrunner.org/blog/2014/06/28/qian-tan-memory-reordering/
+- https://en.wikipedia.org/wiki/Memory_ordering
+- https://en.wikipedia.org/wiki/Memory_barrier
+- https://en.wikipedia.org/wiki/Non-blocking_algorithm
 
 
 
@@ -143,14 +141,9 @@ Locking
 TODO
 
 
+# 操作系统
 
-
-
-
-
-* 操作系统
-
-** 系统调用
+## 系统调用
 
 系统调用编号
 
@@ -158,7 +151,7 @@ Application Binary Interface
 
 TODO
 
-** Privileges
+## Privileges
 
 TODO
 
@@ -167,49 +160,48 @@ Raise Privileges
 
 
 
-* 进程
+# 进程
 
-** 简介
+## 简介
 
-*** Process ID
+### Process ID
 
-*** 内存
+### 内存
 
 - shared memory
-
 - mmaping a file
 
 
-*** 代码区域和数据区域
+### 代码区域和数据区域
 
 
 
-*** 栈
+### 栈
 
-    数据区域的重要部分。
+数据区域的重要部分。
 
-    stack frame。
+stack frame。
 
-    hardware has a register to store stack pointer。
+hardware has a register to store stack pointer。
 
-*** 堆
+### 堆
 
-    brk: bottom of heap
+brk: bottom of heap
 
 
-*** 内存布局
+### 内存布局
 
-[[./memory-layout.png]]
+![](./memory-layout.png)
 
-*** 文件描述符
+### 文件描述符
 
 file descriptors are kept by the kernel individually for each process.
 
-*** 寄存器
+### 寄存器
 
 TODO
 
-*** 内核状态
+### 内核状态
 
 the kernel needs to keep track of a number of elements for each process.
 
@@ -219,44 +211,40 @@ the kernel needs to keep track of a number of elements for each process.
 - 统计信息
 
 
-** 进程树
+## 进程树
 
 init process (pid is 0)
 
-~pstree~
+**pstree**
 
-** Fork 和 Exec
+## Fork 和 Exec
 
-新进程通过 ~fork~ 和 ~exec~ 创建。
+新进程通过 `fork` 和 `exec` 创建。
 
-*** Fork
+### Fork
 
 TODO
 
-*** Exec
+### Exec
 
 exec will replace the contents of the currently running process with the information from a program binary.
 
-*** How Linux handles fork and exec
+### How Linux handles fork and exec
 
-- ~clone~ system call.
-
+- `clone` system call.
 - 线程
   TODO
-
 - CoW
-
 - init process
-
   - wait, and zombie
 
 
 
-** Context Switching
+## Context Switching
 
 TODO
 
-** Scheduling
+## Scheduling
 
 TODO
 
@@ -264,11 +252,11 @@ linux O(1) scheduler:
 
 Bitmap from high priority to low priority
 
-** Shell
+## Shell
 
 TODO
 
-** Signals
+## Signals
 
 Signal: infrastructure between the kernel and processes.
 
@@ -281,66 +269,66 @@ Signal: infrastructure between the kernel and processes.
 - ...
 
 
-* 虚拟内存
+# 虚拟内存
 
 
 
 
-*** 64bit computing
+### 64bit computing
 
 TODO
 
-*** Canonical Addresses
+### Canonical Addresses
 
 Sign Extension
 
 
 TODO
 
-** Pages
+## Pages
 
 page size(>= 4KiB)
 
-** Frames
+## Frames
 
 Just Pages in Physical Memory
 
 frame-table: track which frame is being used.
 
 
-** Page Table
+## Page Table
 
 OS: keep track of which of virtual-page points to which physical frame
 
 Find the real memory address mapped by virtual memory.
 
-** Consequence
+## Consequence
 
-*** Swap
+###  Swap ###
 
-*** mmap
+### mmap ###
 
-*** disk cache
+### disk cache ###
 
-** Hardware Support
+## Hardware Support ##
 
 TLB
 
-** Linux Specifics
+## Linux Specifics ##
 
 Three Level Page Table
 
-** Hardware Support for Virtual Memory
+## Hardware Support for Virtual Memory ##
 
 TODO
 
-* Toolchain
+# Toolchain
 
 TODO
 
-* Behind the Process
+# Behind the Process
 
-** ABI
+## ABI
 
 lower level interfaces which the compiler, operating system and, to some extent, processor, must agree on to communicate together.
 

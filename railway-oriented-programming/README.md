@@ -1,73 +1,62 @@
-== Using ROP to do error handling
+## ROP 错误处理
 
-* 常见的错误处理方法
-* 存在的问题
-* ROP 介绍
+### 常见的错误处理方法
 
-''''
+#### try-catch ####
 
-=== 常见的错误处理方法
-
-典型应用场景：
- * 接收一些数据
- * 在数据上执行一系列数据转换操作。
-
-
-* try-catch
-
-....
+``` ruby
 begin
   ## send post request
 rescue NetworkError => e
 end
-....
+```
 
-* return code
+#### return code ####
 
-....
+``` ruby
 ret = send_post_request()
 if ret.code != 0
   return error
 else
   parse(ret.data)
 end
-....
+```
 
-''''
+--------
 
-==== 存在的问题
+#### 存在的问题 ####
 
 复杂的业务逻辑:
 
-** 验证用户输入
-** 数据库访问
-** 文件访问
-** 网络问题
-** ...
+* 验证用户输入
+* 数据库访问
+* 文件访问
+* 网络问题
+* ...
 
 如果在业务逻辑中，使用上述的处理方法，代码很容易变丑，添加各种 if 判断，各种 begin-rescue。
 
-image::imperative-code-return-early.png[retrun early]
+![retrun early](imperative-code-return-early.png)
 
-''''
+--------
 
-=== Enter ROP(Railway Oriented Programming)
+### Enter ROP(Railway Oriented Programming) ###
 
-image::success-failure.png[success-or-failure]
+![success-or-failure](success-failure.png)
 
 =>
 
-image::success-failure-railway.png[success-or-failure-railway]
-image::success-failure-railway-1.png[success-or-failure-railway]
+![success-or-failure-railway](success-failure-railway.png)
+![success-or-failure-railway](success-failure-railway-1.png)
 
 如果 Validate 失败，就不执行 UpdateDb 操作，
 如果 UpdateDb 失败，就不执行 SendEmail 操作。
 
-image::pipe-chain.png[pipe chain]
+![pipe chain](pipe-chain.png)
 
 实现：
 
-....
+``` ruby
 Try = Struct.new(:ok, data_or_exception)
 
 class Try
@@ -91,16 +80,15 @@ r = Try.new(true, request)
 r.pipe { |req| validate(req) }
  .pipe { |req| update_db(req) }
  .pipe { |db_result| send_email(db_result) }
-....
+```
 
 
 
 
-==== 不会出错的操作
+#### 不会出错的操作 ####
 
-example.
 
-....
+``` ruby
 class Try
   def map(&block)
     if !@ok
@@ -119,16 +107,15 @@ end
 request = FakeRequest.new()
 r = Try.new(true, request)
 r.map { |req| trim_name(req.name) }
-....
+```
 
 
+![two-track](two-track.png)
 
-image::two-track.png[two-track]
 
+### 会抛异常的操作 ###
 
-=== 会抛异常的操作
-
-....
+``` ruby
 class Try
   def map(&block)
     if !@ok
@@ -148,17 +135,17 @@ end
 request = FakeRequest.new()
 r = Try.new(true, request)
 r.map { |req| function_may_raise_error(req) }
-....
+```
 
 
-image::function_may_raise_error.png[raise error function]
+![raise error function](function_may_raise_error.png)
 
-==== 副作用
+#### 副作用 ####
 
 do something meaningful but the return value is not needed.
 
 
-....
+``` ruby
 class Try
   def on_success(&block)
     if !@ok
@@ -177,28 +164,28 @@ end
 request = FakeRequest.new()
 r = Try.new(true, request)
 r.on_success { |req| update_db(req) }
-....
+```
 
-image::one-track-input-output.png[dead end railway]
+![dead end railway](one-track-input-output.png)
 
 
 
-=== 串联起来
+### 串联起来
 
 将以上操作串联起来：
 
-....
+``` ruby
 request = FakeRequest.new()
 r = Try.new(true, request)
 response = r.pipe { |req| validate(req) }
  .map { |req| get_user(req.name) }
  .on_success { |req| update_db(req) }
  .pipe { |req| send_email(req) }
-....
+```
 
-image::chain-validate-update_db_send_email.png[chain all]
+![chain all](chain-validate-update_db_send_email.png)
 
-=== 其他
+### 其他 ###
 
 - Try
 - Maybe

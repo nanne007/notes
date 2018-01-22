@@ -1,0 +1,25 @@
+version: '2'
+services:
+  zookeeper:
+    image: zookeeper:3.4
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+  zk-web:
+    image: tobilg/zookeeper-webui
+    ports:
+      - 8888:8080
+    environment:
+      - ZK_DEFAULT_NODE=zookeeper:2181
+      - USER=admin
+      - PASSWORD=admin
+  kafka-manager:
+    depends_on:
+      - zookeeper
+    image: sheepkiller/kafka-manager
+    ports:
+      - 9000:9000
+    environment:
+      - ZK_HOSTS=zookeeper:2181
+      - APPLICATION_SECRET=letmein
