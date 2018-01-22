@@ -1,0 +1,14 @@
+{
+    "plugins": ["toc2", "todo", "git-author"],
+    "pluginsConfig": {
+        "toc2": {
+            "addClass": true,
+            "className": "toc"
+        },
+        "git-author": {
+            "modifyTpl": "Last modified by {user} {timeStamp}",
+            "createTpl": "Created by {user} {timeStamp}",
+            "timeStampFormat": "YYYY/MM/DD"
+        }
+    }
+}
