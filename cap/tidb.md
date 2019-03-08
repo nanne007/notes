@@ -16,7 +16,6 @@
 - [ ] SQL Layer
 
 
-
 ----------
 ## 概览
 
@@ -74,7 +73,7 @@
 
 
 ----------
-## Storage Stack
+## 数据存储
 ![Storage Stack](https://pingcap.com/images/blog/storage-stack1.png)
 
 ![Key Space](https://pingcap.com/images/blog/key-space.png)
@@ -82,23 +81,110 @@
 ![Storage Stack3](https://pingcap.com/images/blog/storage-stack3.png)
 
 ----------
-## Leader-based Replication - Raft
+## 数据复制
+
+### 一致性协议 Raft
+
+> 超级棒的 Slide http://thesecretlivesofdata.com
+
+### Raft in TiKV
+
+![](https://pingcap.com/images/blog-cn/tikv-architecture.png)
+
+- 每个 Region 有三个副本（Replica），副本之间构成一个 Raft Group。
+
+  （Replica 分布在不同的 TiKV 节点上，其中 Leader 负责读/写，Follower 负责同步 Leader 发来的 raft log）
+
+- 请求到 Region Leader 的写请求的数据通过 Raft 协议，在三个副本之间达成一致。
+
+- 整个 KV 空间由许多个 Raft Group 构成。
+
+------
+
+## 数据调度
+
+### 为什么调度
+
+负载与分布：
+
+- 保证请求均匀分布到节点上。
+- 保证节点存储容量均匀。
+- 保证数据访问热点分布均匀。
+- 保证副本数量不多不少，并且分布在不同机器上。
+- 避免集群 Balance 影响服务。
+
+扩容缩容：
+
+- 增加节点以及下线节点后，保证数据均匀分布。
+
+数据容灾：
+
+- 少数节点失效后，保证服务正常，以及负载和分布均衡。
+- 跨机房部署时，某个机房掉线后，保证不丢失数据甚至是保证正常服务。
+
+### 调度的基本单元
+
+- 增加一个 Replica
+- 删除一个 Replica
+- 将 Raft Leader 从 一个 Replica 转移到另一个 Replica
+
+### 集群信息收集
+
+收集每个TiKV 节点的信息，以及每个 Region 的状信息。
+
+- 节点定时上报的信息。
+  - 磁盘总量，可用磁盘容量。
+  - 包含的 Region Replica 个数。
+  - 数据写入速度。
+  - 是否过载。
+  - Label 信息。
+  - 其他...
+- Region 的 Raft Leader 上报信息。
+  - Leader/Follower 所在的节点。
+  - 掉线的 Replica 个数。
+  - Region 写入和读取的速度。
+  - 其他...
 
 
-- **CAP**: Choose Consistency or Availability when Partitioned
-![](https://pingcap.com/images/blog-cn/raft-rocksdb.png)
 
+ **通过管理接口传递进来的外部信息，做更准确的决策。**
 
+- 主动下线某个节点。
+- 主动迁移某些热点 Region。
+- 其他...
 
+### 调度计划
 
+- **一个 Region 的 Replica 数量正确**
+- **一个 Raft Group 中的多个 Replica 不在同一个==位置==**
+- **副本在 Store 之间的分布均匀分配**
+- **Leader 数量在 Store 之间均匀分配**
+- **访问热点数量在 Store 之间均匀分配**
+- **各个 Store 的存储空间占用大致相等**
+- **控制调度速度，避免影响在线服务**
+- 其他。。（可在 PD 中实现自定义的调度策略）
+
+### 调度实现
+
+1. PD 不断的通过 Store 或者 Leader 的心跳包收集信息，获得整个集群的详细数据
+2. 每次收到 Region Leader 发来的心跳包时，根据以上信息以及调度策略**==生成调度操作序列==**。
+3. 通过心跳包的返回消息，将需要进行的操作返回给 Region Leader，并在后面的心跳包中监测执行结果。
+
+------
 
 ## Transaction && MVCC
 
 
+
+------
+
 ## SQL Layer
+
 ![SQL to Key-Value](https://pingcap.com/images/blog/sql-kv.png)
 
 
+
+------
 
 ## 编码格式
 
@@ -168,7 +254,7 @@ Table Scan/Index Scan => Selection/TopN/Aggr/Limit
 http://andremouche.github.io/tidb/coprocessor_in_tikv.html
 
 
-### 代码目录说明 ###
+## 代码目录说明 ##
 
 #### structure ####
 
@@ -200,5 +286,15 @@ table，index， column 相关的抽象，用来操作数据。
 mysql 类型封装。
 
 
-####  ####
+#### distsql  ####
 
+对 `kv.Response` 的封装。
+
+- streaming(`stream.go`)
+  调用 `kv.Response` 的 `Next` 方法，返回的数据是 `tipb.StreamResponse`(one chunk a time)。
+- select(`distsql.go`)
+  调用 `kv.Response` 的 `Next` 方法，返回的数据是 `tipb.SelectResponse`(many chunk)。
+
+TODO:
+
+- [ ] implementation of `kv.Response`
