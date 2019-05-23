@@ -11,6 +11,7 @@
 * [Kafka 压测](ARCH/kafka-benchmark-runner/README.md)
 * [CSBU 笔记](OS/csbu/README.md)
 * [TiDB](cap/tidb.md)
+* [LSM-tree 的 Compaction 策略](storage/lsm-tree/compaction-strategy.md)
 * [Beam Model](about-beam-model/README.md)
 * [effective cpp](effective_cpp/README.md)
 * [个人项目](projects/README.md)
